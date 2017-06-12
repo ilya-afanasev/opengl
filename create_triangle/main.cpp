@@ -5,7 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <sstream>
 
-void key_callback(GLFWwindow *window, int key, int scancode, int action, int mode);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 GLfloat vertices[] = {
         -0.5f, -0.5f, 0.0f,
@@ -30,13 +30,13 @@ const char* const fragment_shader = "#version 330 core\n"
         "\n"
         "void main()\n"
         "{\n"
-        "\tcolor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+        "    color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
         "}";
 
 
-GLuint build_shader(const char* shader)
+GLuint build_shader(const char* shader, GLuint type)
 {
-    GLuint shader_id = glCreateShader(GL_VERTEX_SHADER);
+    GLuint shader_id = glCreateShader(type);
     glShaderSource(shader_id, 1, &shader, NULL);
     glCompileShader(shader_id);
 
@@ -91,20 +91,13 @@ int main()
     glfwGetFramebufferSize(window, &width, &height);
     glViewport(0, 0, width, height);
 
-    GLuint vbo = 0;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    GLuint vertex_shader_id = build_shader(vertex_shader);
-    GLuint fragment_shader_id = build_shader(fragment_shader);
+    GLuint vertex_shader_id = build_shader(vertex_shader, GL_VERTEX_SHADER);
+    GLuint fragment_shader_id = build_shader(fragment_shader, GL_FRAGMENT_SHADER);
 
     GLuint shader_program = glCreateProgram();
     glAttachShader(shader_program, vertex_shader_id);
     glAttachShader(shader_program, fragment_shader_id);
     glLinkProgram(shader_program);
-    glDeleteShader(vertex_shader_id);
-    glDeleteShader(fragment_shader_id);
 
     GLint success = 0;
     glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
@@ -114,23 +107,40 @@ int main()
         glGetProgramInfoLog(shader_program, 512, NULL, info);
         std::cerr << info << std::endl;
     }
+    glDeleteShader(vertex_shader_id);
+    glDeleteShader(fragment_shader_id);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+    GLuint vbo = 0;
+    GLuint vao = 0;
+
+    glGenBuffers(1, &vbo);
+    glGenVertexArrays(1, &vao);
+
+    glBindVertexArray(vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*) 0);
     glEnableVertexAttribArray(0);
 
-    glUseProgram(shader_program);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
     // Game loop
     while (!glfwWindowShouldClose(window))
     {
         // Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
         glfwPollEvents();
 
-        // Render
-        // Clear the colorbuffer
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        // Render
 
-        // Swap the screen buffers
+        glUseProgram(shader_program);
+        glBindVertexArray(vao);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glBindVertexArray(0);
+
         glfwSwapBuffers(window);
     }
 
