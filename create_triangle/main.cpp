@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <sstream>
 #include <cmath>
+#include "shader.h"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
@@ -18,50 +19,6 @@ GLuint indices[] = {
 };
 
 const GLuint WIDTH = 800, HEIGHT = 600;
-
-const char* const vertex_shader = "#version 330 core\n"
-        "\n"
-        "layout (location = 0) in vec3 position;\n"
-        "layout (location = 1) in vec4 color;\n"
-        "out vec4 vertex_color;\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "    gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
-        "    vertex_color = color;"
-        "}";
-
-const char* const fragment_shader = "#version 330 core\n"
-        "\n"
-        "in vec4 vertex_color;\n"
-        "out vec4 color;\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "    color = vertex_color;\n"
-        "}";
-
-
-GLuint build_shader(const char* shader, GLuint type)
-{
-    GLuint shader_id = glCreateShader(type);
-    glShaderSource(shader_id, 1, &shader, NULL);
-    glCompileShader(shader_id);
-
-    GLint success = 0;
-    GLchar info_log[512] = {};
-
-    glGetShaderiv(shader_id, GL_COMPILE_STATUS, &success);
-
-    if (!success)
-    {
-        glGetShaderInfoLog(shader_id, 512, NULL, info_log);
-        std::stringstream ss;
-        ss << "ERROR::SHADER::COMPILATION_FAILED" << std::endl << info_log << std::endl;
-        throw std::runtime_error(ss.str());
-    }
-    return shader_id;
-}
 
 int main()
 {
@@ -98,24 +55,7 @@ int main()
     glfwGetFramebufferSize(window, &width, &height);
     glViewport(0, 0, width, height);
 
-    GLuint vertex_shader_id = build_shader(vertex_shader, GL_VERTEX_SHADER);
-    GLuint fragment_shader_id = build_shader(fragment_shader, GL_FRAGMENT_SHADER);
-
-    GLuint shader_program = glCreateProgram();
-    glAttachShader(shader_program, vertex_shader_id);
-    glAttachShader(shader_program, fragment_shader_id);
-    glLinkProgram(shader_program);
-
-    GLint success = 0;
-    glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
-    if (!success)
-    {
-        char info[512] = {};
-        glGetProgramInfoLog(shader_program, 512, NULL, info);
-        std::cerr << info << std::endl;
-    }
-    glDeleteShader(vertex_shader_id);
-    glDeleteShader(fragment_shader_id);
+    ShaderProgramWrapper program("/home/mamba/github/opengl/create_triangle/shader.vert", "/home/mamba/github/opengl/create_triangle/shader.frag");
 
     GLuint vbo = 0;
     GLuint vao = 0;
@@ -154,7 +94,7 @@ int main()
 //        GLdouble current_time = glfwGetTime();
 //        GLfloat green = static_cast<GLfloat>((sin(current_time) / 2) + 0.5);
 //        GLint vertex_color = glGetUniformLocation(shader_program, "vertex_color");
-        glUseProgram(shader_program);
+        program.use();
 //        glUniform4f(vertex_color, 0.0f, green, 0.0f, 1.0f);
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

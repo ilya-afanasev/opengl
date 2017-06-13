@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.7)
 project(create_triangle)
 
 set(CMAKE_CXX_STANDARD 11)
-set(SOURCE_FILES main.cpp)
+set(SOURCE_FILES main.cpp shader.h shader.cpp)
 add_executable(create_triangle ${SOURCE_FILES})
 
 find_package(OpenGL REQUIRED)
