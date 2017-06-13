@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <sstream>
+#include <cmath>
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
@@ -25,21 +26,19 @@ const char* const vertex_shader = "#version 330 core\n"
         "\n"
         "layout (location = 0) in vec3 position;\n"
         "\n\n"
-        "out vec4 vertexColor;\n"
         "void main()\n"
         "{\n"
         "    gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
-        "    vertexColor = vec4(0.5f, 0.0f, 0.0f, 1.0f);\n"
         "}";
 
 const char* const fragment_shader = "#version 330 core\n"
         "\n"
-        "in vec4 vertexColor;\n"
+        "uniform vec4 vertex_color;\n"
         "out vec4 color;\n"
         "\n"
         "void main()\n"
         "{\n"
-        "    color = vertexColor;\n"
+        "    color = vertex_color;\n"
         "}";
 
 
@@ -145,8 +144,11 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // Render
+        GLdouble current_time = glfwGetTime();
+        GLfloat green = static_cast<GLfloat>((sin(current_time) / 2) + 0.5);
+        GLint vertex_color = glGetUniformLocation(shader_program, "vertex_color");
         glUseProgram(shader_program);
+        glUniform4f(vertex_color, 0.0f, green, 0.0f, 1.0f);
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
