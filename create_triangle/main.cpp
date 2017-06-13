@@ -24,19 +24,22 @@ const GLuint WIDTH = 800, HEIGHT = 600;
 const char* const vertex_shader = "#version 330 core\n"
         "\n"
         "layout (location = 0) in vec3 position;\n"
-        "\n"
+        "\n\n"
+        "out vec4 vertexColor;\n"
         "void main()\n"
         "{\n"
         "    gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
+        "    vertexColor = vec4(0.5f, 0.0f, 0.0f, 1.0f);\n"
         "}";
 
 const char* const fragment_shader = "#version 330 core\n"
         "\n"
+        "in vec4 vertexColor;\n"
         "out vec4 color;\n"
         "\n"
         "void main()\n"
         "{\n"
-        "    color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+        "    color = vertexColor;\n"
         "}";
 
 
@@ -60,7 +63,6 @@ GLuint build_shader(const char* shader, GLuint type)
     }
     return shader_id;
 }
-
 
 int main()
 {
