@@ -12,6 +12,7 @@ if(WIN32)
   set(GLFW_INCLUDE_DIRS "$ENV{GLFW_ROOT}/include")
   find_library(GLFW_STATIC_LIBRARIES NAMES glfw3 PATHS ENV GLFW_ROOT PATH_SUFFIXES lib)
 elseif(UNIX)
+  find_package(PkgConfig REQUIRED)
   pkg_search_module(GLFW REQUIRED glfw3)
 endif()
 
