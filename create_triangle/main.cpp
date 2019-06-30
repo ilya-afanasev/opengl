@@ -55,7 +55,7 @@ int main()
     glfwGetFramebufferSize(window, &width, &height);
     glViewport(0, 0, width, height);
 
-    ShaderProgramWrapper program("/home/mamba/github/opengl/create_triangle/shader.vert", "/home/mamba/github/opengl/create_triangle/shader.frag");
+    ShaderProgramWrapper program("../shader.vert", "../shader.frag");
 
     GLuint vbo = 0;
     GLuint vao = 0;
